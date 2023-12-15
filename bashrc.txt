@@ -1,0 +1,26 @@
+alias manuel='echo "#######################################" ; echo "oki"'
+
+urlserveur='../serveur'
+
+abort='cd .. ; rm -rf GitFichierDesExpressions ; vim .bashrc'
+
+init='source .bashrc ; mkdir GitFichierDesExpressions ; cd GitFichierDesExpressions ; git init ; git remote add serveur '$urlserveur' ; git fetch serveur ; git pull serveur dev ; git branch --set-upstream-to=serveur/dev master ; git checkout master ; git branch -d local ; git checkout -B local'
+pull='git fetch serveur ; git checkout master ; git pull serveur dev ; git branch -d local ; git checkout -B local'
+precommit='git add --all ./* ; echo "##############################" ; echo "# 1. Tapez cmt, puis un      #" ; echo "# 2. message qui finit par \" #" && echo "##############################"'
+commit='git add --all ./* && git commit -m "'
+push='git fetch serveur && git rebase master && git checkout master && git merge local && git push serveur:dev && git branch -d local && git checkout -B local'
+adog='git log --all --decorate --oneline --graph'
+
+alias adog=$adog
+
+alias abort=$abort
+
+alias init=$init
+
+alias reset=$pull
+
+alias cmt=$commit
+
+alias save=$precommit
+
+alias push=$push
