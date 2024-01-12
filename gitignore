@@ -1,0 +1,6 @@
+# On ignore tout...
+*
+
+# ... sauf ce fichier !
+!test.xlsx
+!fichier
