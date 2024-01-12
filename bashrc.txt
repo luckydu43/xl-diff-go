@@ -1,26 +1,227 @@
-alias manuel='echo "#######################################" ; echo "oki"'
+##############################################################################
+######################### Definir ces variables !!! ##########################
+##############################################################################
+####################################  |  #####################################
+#################################### \|/ #####################################
+####################################  *  #####################################
+##############################################################################
 
-urlserveur='../serveur'
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Mettre à true une fois fait !
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+variablesajour=true
 
-abort='cd .. ; rm -rf GitFichierDesExpressions ; vim .bashrc'
+# Emplacement du répertoire distant
+urlserveur='c:/users/windows10/desktop/serveur'
 
-init='source .bashrc ; mkdir GitFichierDesExpressions ; cd GitFichierDesExpressions ; git init ; git remote add serveur '$urlserveur' ; git fetch serveur ; git pull serveur dev ; git branch --set-upstream-to=serveur/dev master ; git checkout master ; git branch -d local ; git checkout -B local'
-pull='git fetch serveur ; git checkout master ; git pull serveur dev ; git branch -d local ; git checkout -B local'
-precommit='git add --all ./* ; echo "##############################" ; echo "# 1. Tapez cmt, puis un      #" ; echo "# 2. message qui finit par \" #" && echo "##############################"'
-commit='git add --all ./* && git commit -m "'
-push='git fetch serveur && git rebase master && git checkout master && git merge local && git push serveur:dev && git branch -d local && git checkout -B local'
-adog='git log --all --decorate --oneline --graph'
+# Votre nom Intradef
+name='p.nom'
 
-alias adog=$adog
+# Votre mail Intradef
+email='prenom.nom@intradef.gouv.fr'
 
-alias abort=$abort
+# Nom de la branche principale
+mainbranch='main'
 
+##############################################################################
+####################################  ^  #####################################
+#################################### /|\ #####################################
+####################################  |  #####################################
+##############################################################################
+
+# A executer cote serveur :
+# git config receive.denyCurrentBranch ignore
+
+compteurbonreflexe=0
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+YELLOW=$(tput setaf 3)
+NORMAL=$(tput sgr0)
+REVERSE=$(tput smso)
+
+if [[ $variablesajour != true ]]; then
+	printf "\n";
+	printf "${RED}${REVERSE} ########################################################\n";
+	printf " ### Mettez à jour les 5 variables dans le fichier : ####\n";
+	printf " #${GREEN} urlserveur, nom, email, mainbranch et variablesajour ${RED}${REVERSE}#\n";
+	printf " ########################################################${NORMAL}\n";
+	printf " \n";
+	printf " Appuyez sur une touche pour ouvrir le fichier...\n\n";
+	printf " (les modifications seront appliquées à la fermeture)";
+	printf "\n\n ${YELLOW}Si c\x27est votre première fois, n\x27oubliez pas init";
+	read
+	notepad etc/bash.bashrc
+	start git-bash.exe
+	exit 1 || return 1
+fi
+
+PROMPT_COMMAND='
+printf "\n${YELLOW} +-------------------------------------+\n";
+printf " | Vous disposez de 5 commandes :      |\n";
+printf " | ${REVERSE}init${NORMAL}${YELLOW}, ${REVERSE}save${NORMAL}${YELLOW}, ${REVERSE}histo${NORMAL}${YELLOW}, ${REVERSE}partage${NORMAL}${YELLOW} et ${REVERSE}reset${NORMAL}${YELLOW} |\n";
+printf " +-------------------------------------+\n";
+printf " | Obtenez plus d\x27informations en      |\n";
+printf " | ajoutant \"man\" au début du mot      |\n";
+printf " | comme ceci : ${REVERSE}maninit${NORMAL}${YELLOW}, ${REVERSE}mansave${NORMAL}${YELLOW}...    |\n";
+printf " +-------------------------------------+\n";
+printf " | Vous avez fait $compteurbonreflexe enregistrement(s). |\n";
+printf " +-------------------------------------+";'
+
+maninit='
+clear
+printf "NAME\n";
+printf " init - réinitialisation du dépôt\n\n";
+printf "DESCRIPTION\n"
+printf " La commande ${YELLOW}${REVERSE}init${NORMAL} a pour seul rôle de réinitialiser votre\n";
+printf " dépôt local.\n";
+printf " ${RED}Son exécution implique une RAZ des fichiers locaux.${NORMAL}\n";
+printf " Elle s\x27exécute en plusieurs étapes :\n";
+printf " ${REVERSE}1.${NORMAL} Application des paramètres globaux de Git (branche\n";
+printf "    par défaut, nom et e-mail)\n";
+printf " ${REVERSE}2.${NORMAL} Déclaration du git remote où on donne le chemin du\n";
+printf "    dépôt distant\n";
+printf " ${REVERSE}3.${NORMAL} Récupération de toutes les données du serveur distant\n";
+printf " ${REVERSE}4.${NORMAL} Destruction et création de la branche locale\n";'
+
+init='
+clear;
+printf "${RED}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
+printf "Ceci va détruire tout travail non partagé !\n";
+printf "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ${NORMAL}\n";
+read -p "Êtes-vous sûr de ce que vous faites ? (O/N) " -n 1 -r
+if [[ $REPLY =~ ^[oOyY]$ ]]
+then
+	printf "\n${GREEN}Paramétrage global de Git${NORMAL}\n";
+	git config --global init.defaultBranch $mainbranch
+	git config --global user.name $name
+	git config --global user.email $email
+	printf "\n${GREEN}Déclaration du remote, le serveur distant${NORMAL}\n";
+	git remote remove serveur;
+	git remote add serveur '$urlserveur' ;
+	printf "\n${GREEN}Récupération des données du serveur distant${NORMAL}\n" ;
+	git checkout $mainbranch;
+	git fetch serveur ;
+	git pull serveur '$mainbranch' ;
+	git branch --set-upstream-to=serveur/'$mainbranch' '$mainbranch';
+	printf "\n${GREEN}Remise à zéro de la branche locale${NORMAL}\n" ;
+	git branch -D local ;
+	git checkout -B local
+fi'
+
+mansave='
+clear;
+printf "NAME\n";
+printf " save - création d\x27un commit (snapshot)\n\n";
+printf "DESCRIPTION\n";
+printf " La commande ${YELLOW}${REVERSE}save${NORMAL} a plusieurs rôles :\n";
+printf " ${REVERSE}1.${NORMAL} Indiquer l\x27état du dépôt\n";
+printf " ${REVERSE}2.${NORMAL} Formaliser le message de commit\n";
+printf " ${REVERSE}2.${NORMAL} Créer un commit (snapshot incrémental) des fichiers\n";
+printf "    locaux\n\n";
+printf " Elle s\x27exécute en plusieurs étapes :\n";
+printf " ${REVERSE}1.${NORMAL} Prise en compte des modifications des fichiers connus\n";
+printf " ${REVERSE}2.${NORMAL} Affichage du statut du dépôt local\n";
+printf " ${REVERSE}3.${NORMAL} Affichage du formalisme\n";
+printf " ${REVERSE}4.${NORMAL} Stockage du message de commit dans une variable\n";
+printf " ${REVERSE}5.${NORMAL} Création du commit formalisé\n";
+printf " ${REVERSE}5.${NORMAL} Si réussite, incrémentation du compteur de bons\n";
+printf "    réflexes\n"'
+
+save='
+clear;
+git add fichier ;
+git add test.xlsx ;
+git status
+printf "${YELLOW}+-------------------------------------------------------+"
+printf "\n|${GREEN}S\x27il est écrit : ${YELLOW}nothing to commit, working tree clean${GREEN},${YELLOW}|\n";
+printf "|${GREEN}vous n\x27avez rien à sauvegarder, sortez avec CTRL + C ! ${YELLOW}|\n";
+printf "+-------------------------------------------------------+${NORMAL}\n\n\n";
+printf " ${YELLOW}Autrement, bon réflexe !${NORMAL}\n\n"
+printf " Votre message de commit est au format (ACTION):Message\n" ;
+printf " Les actions sont${GREEN} AJOUT${NORMAL}, ${GREEN}MAJ${NORMAL} et ${GREEN}SUPPR${NORMAL}.\n\n" ;
+printf " ${RED}${REVERSE}1.${NORMAL}${RED} Soyez EXHAUSTIF, ce seul message donne le suivi !\n";
+#printf " ${RED}${REVERSE}2.${NORMAL}${RED} Ne mettez pas de , de \x27 ou de \x22 !\n";
+printf "\n${NORMAL} Votre message : ("
+read -p "" ;
+git commit -m $name:\($REPLY
+if [[ $? == 0 ]]
+then
+	((compteurbonreflexe++));
+fi'
+
+manhisto='
+clear;
+printf "NAME\n";
+printf " histo - affichage de l\x27historique\n\n";
+printf "DESCRIPTION\n";
+printf " La commande ${YELLOW}${REVERSE}histo${NORMAL} a pour rôle de construire un arbre\n";
+printf " des commits pour chaque branche connue.\n";
+printf " Si ${RED}serveur/main${NORMAL} et ${GREEN}main${NORMAL} ne sont pas sur la même ligne,\n";
+printf " il y a un conflit à gérer.\n";
+printf " Idem si ${GREEN}main${NORMAL} se trouve au-dessus de ${GREEN}local${NORMAL}.\n"'
+
+histo='
+clear;
+printf "\n${GREEN}Récupération des données du serveur distant${NORMAL}\n" ;
+git checkout '$mainbranch';
+git fetch serveur;
+git pull serveur '$mainbranch';
+git checkout local;
+printf "\n${GREEN}Arbre des commits de toutes les branches connues : ${NORMAL}\n" ;
+git log --all --decorate --oneline --graph'
+
+manpartage='
+clear;
+printf "NAME\n";
+printf " partage - partage des données locales sauvegardées\n\n";
+printf "DESCRIPTION\n";
+printf " Cette commande partage toutes les données sauvegardées.\n";
+printf " Elle réclame 8 commandes git successives d\x27où sa verbosité."'
+
+partage='git checkout '$mainbranch' && git fetch serveur && git pull serveur '$mainbranch' && git checkout local && git rebase '$mainbranch' && git checkout '$mainbranch' && git merge local && git push serveur '$mainbranch' && git checkout local'
+
+manreset='
+clear;
+printf "NAME\n";
+printf " reset - suppression de toutes les données locales\n\n";
+printf "DESCRIPTION\n";
+printf " Cette commande supprime toutes les données non partagées\n";
+printf " Elle est utile pour régler rapidement un conflit à la\n";
+printf " main à base de copier/coller.\n"
+printf " ${RED}Son exécution implique une RAZ des fichiers locaux.${NORMAL}\n"'
+
+reset='
+clear;
+printf "${RED}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
+printf "Ceci va détruire tout travail non partagé !\n";
+printf "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ${NORMAL}\n";
+read -p "Êtes-vous sûr de ce que vous faites ? (O/N) " -n 1 -r
+if [[ $REPLY =~ ^[oOyY]$ ]]
+then
+	printf "\n${GREEN}Récupération des données du serveur distant${NORMAL}\n" ;
+	git checkout $mainbranch ;
+	git fetch serveur ;
+	git pull serveur $mainbranch ;
+	printf "\n${GREEN}Remise à zéro de la branche locale${NORMAL}\n" ;
+	git branch -D local ;
+	git checkout -B local
+fi'
+
+modif='
+cp ./fichier ./fichierOLD;
+cp c/Users/windows10/Desktop/serveur/fichier ./'
+
+modif2='cp ./fichierOLD ./fichier'
+
+alias maninit=$maninit
 alias init=$init
-
-alias reset=$pull
-
-alias cmt=$commit
-
-alias save=$precommit
-
-alias push=$push
+alias mansave=$mansave
+alias save=$save
+alias manhisto=$manhisto
+alias histo=$histo
+alias manpartage=$manpartage
+alias partage=$partage
+alias manreset=$manreset
+alias reset=$reset
+alias modif=$modif
+alias modif2=$modif2
