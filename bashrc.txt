@@ -6,222 +6,617 @@
 ####################################  *  #####################################
 ##############################################################################
 
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-# Mettre à true une fois fait !
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Changez la valeur de variablesajour de false à true une fois vos informations bien renseignées
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 variablesajour=true
 
-# Emplacement du répertoire distant
-urlserveur='c:/users/windows10/desktop/serveur'
+# Votre nom
+name='VotreNom'
 
-# Votre nom Intradef
-name='p.nom'
+# Votre mail
+email='VotreAdresseM@il'
 
-# Votre mail Intradef
-email='prenom.nom@intradef.gouv.fr'
-
+##############################################################################
+############## Ces paramètres ne vous concernent sûrement pas. ###############
+##############################################################################
+# Nom du fichier
+nomfichier='TdB_EMAT.xlsx'
 # Nom de la branche principale
 mainbranch='main'
-
+# Emplacement du répertoire distant
+urldossieremat='d:/serveur2'
+# Emplacement du dépôt git de la forge intradef :
+urlforgeintradef=ssh://gitolite@serveur.fr/depot/projet.git
 ##############################################################################
 ####################################  ^  #####################################
 #################################### /|\ #####################################
 ####################################  |  #####################################
 ##############################################################################
 
-# A executer cote serveur :
-# git config receive.denyCurrentBranch ignore
-
-compteurbonreflexe=0
 RED=$(tput setaf 1)
 GREEN=$(tput setaf 2)
 YELLOW=$(tput setaf 3)
+MAGENTA=$(tput setaf 5)
+CYAN=$(tput setaf 6)
 NORMAL=$(tput sgr0)
 REVERSE=$(tput smso)
+# Retirer toutes les frappes avant le read
+annuler_saisies_precedentes() {
+    while read -t 0; do read -r; done;
+}
+# Fonction pour ouvrir le fichier excel
+ouvrirexcel() {
+	start excel /$nomfichier
+}
+
+rm -f $HOME/gitconfig.lock
 
 if [[ $variablesajour != true ]]; then
-	printf "\n";
-	printf "${RED}${REVERSE} ########################################################\n";
-	printf " ### Mettez à jour les 5 variables dans le fichier : ####\n";
-	printf " #${GREEN} urlserveur, nom, email, mainbranch et variablesajour ${RED}${REVERSE}#\n";
-	printf " ########################################################${NORMAL}\n";
+	printf "\n${YELLOW} +------------------------------------------------------+\n";
+	printf " | MODIFIEZ LA CONSOLE !!!!!!!!!!!!!!!!!!!!!!!!!!!!     |\n";
+	printf " | Clic droit sur le logo en haut à gauche, \"Options\" : |\n";
+	printf " |     Section \"Text\", bouton \"Select\", taille 16.      |\n";
+	printf " |     Section \"Window\", \"Columns\" 57, \"Rows\" 35.       |\n";
+	printf " +------------------------------------------------------+${NORMAL}\n";
 	printf " \n";
-	printf " Appuyez sur une touche pour ouvrir le fichier...\n\n";
-	printf " (les modifications seront appliquées à la fermeture)";
-	printf "\n\n ${YELLOW}Si c\x27est votre première fois, n\x27oubliez pas init";
-	read
-	notepad etc/bash.bashrc
-	start git-bash.exe
+	annuler_saisies_precedentes
+	read -p " Appuyez sur O pour passer à l'étape suivante" -n 1 -r
+	if [[ $REPLY =~ ^[oOyY]$ ]]
+	then
+		printf "\n${REVERSE}${RED}#########################################################\n";
+		printf "##### Mettez à jour les 7 variables dans le fichier #####\n";
+		printf "#########################################################\n${NORMAL}";
+		printf " Appuyez sur une touche pour ouvrir le fichier...\n\n";
+		printf " ${REVERSE}${YELLOW}(les modifications seront appliquées à la fermeture)${NORMAL}";
+		annuler_saisies_precedentes
+		read
+		notepad etc/bash.bashrc
+		start git-bash.exe
+	fi
 	exit 1 || return 1
 fi
 
 PROMPT_COMMAND='
-printf "\n${YELLOW} +-------------------------------------+\n";
-printf " | Vous disposez de 5 commandes :      |\n";
-printf " | ${REVERSE}init${NORMAL}${YELLOW}, ${REVERSE}save${NORMAL}${YELLOW}, ${REVERSE}histo${NORMAL}${YELLOW}, ${REVERSE}partage${NORMAL}${YELLOW} et ${REVERSE}reset${NORMAL}${YELLOW} |\n";
-printf " +-------------------------------------+\n";
-printf " | Obtenez plus d\x27informations en      |\n";
-printf " | ajoutant \"man\" au début du mot      |\n";
-printf " | comme ceci : ${REVERSE}maninit${NORMAL}${YELLOW}, ${REVERSE}mansave${NORMAL}${YELLOW}...    |\n";
-printf " +-------------------------------------+\n";
-printf " | Vous avez fait $compteurbonreflexe enregistrement(s). |\n";
-printf " +-------------------------------------+";'
+printf "\n${NORMAL}╔═══════════════════════════════════════════════════════╗\n";
+printf "║       ${REVERSE}${GREEN}[r]eset${NORMAL}${YELLOW}, ${REVERSE}${GREEN}[s]ave${NORMAL}${YELLOW}, ${REVERSE}${GREEN}[h]isto${NORMAL}${YELLOW}, ${REVERSE}${GREEN}[p]artage${NORMAL}${YELLOW}.${NORMAL}            ║\n";
+printf "║       ${YELLOW}Ajoutez \"guide\" pour la doc :${NORMAL}                   ║\n";
+printf "║       ${REVERSE}${GREEN}[g]uide${NORMAL}${YELLOW}, ${REVERSE}${GREEN}[g]uide[r]eset${NORMAL}${YELLOW}, ${REVERSE}${GREEN}[g]uide[s]ave${NORMAL}${YELLOW}...${NORMAL}       ║\n";
+printf "║ ${YELLOW}Vous avez enregistré '$nomfichier' $compteurbonreflexe fois.${NORMAL}"
+'
 
-maninit='
-clear
-printf "NAME\n";
-printf " init - réinitialisation du dépôt\n\n";
-printf "DESCRIPTION\n"
-printf " La commande ${YELLOW}${REVERSE}init${NORMAL} a pour seul rôle de réinitialiser votre\n";
-printf " dépôt local.\n";
+guide='
+printf "\n${YELLOW}En 5 commandes, vous pouvez gérer le fichier Excel des
+expressions, voici un diagramme logique : \n\n${NORMAL}";
+printf "┌◄─────────────────────────◄┐\n"
+printf "│ ╔════╗                    │\n"
+printf "├►╢${REVERSE}${GREEN}save${NORMAL}╟►┬─────────────────►┤\n"
+printf "│ ╚════╝ │╔═══════╗         │\n"
+printf "│        └╢${REVERSE}${GREEN}partage${NORMAL}╟┐        │\n"
+printf "│         ╚═══════╝▼╔═════╗ │\n"
+printf "├►─────────────────┴╢${REVERSE}${GREEN}reset${NORMAL}╟►┤\n"
+printf "│ ╔═════╗           ╚═════╝ │\n"
+printf "├►╢${REVERSE}${GREEN}histo${NORMAL}╟►─────────────────►┤\n"
+printf "│ ╚═════╝                   │\n"
+printf "│ ┌──────┐                  │\n"
+printf "└►┤${REVERSE}${GREEN}clessh${NORMAL}├►────────────────►┘\n"
+printf "  └──────┘\n\n"
+
+printf "${YELLOW}1. Toutes les commandes sont exécutables en tout sens.\n";
+printf "2. Le [X] indique les caractères à taper pour raccourcir\n";
+printf "   la commande. Les guides sont également raccourcis.\n";
+printf "3. Contentez-vous de lancer ${REVERSE}${GREEN}[p]artage${NORMAL}${YELLOW} uniquement.\n";
+printf "   ${REVERSE}${GREEN}[p]artage${NORMAL}${YELLOW} lance toute seule ${REVERSE}${GREEN}[s]ave${NORMAL}${YELLOW} et ${REVERSE}${GREEN}[r]eset${NORMAL}${YELLOW}.\n";
+printf "4. Il y a un guide pour chaque commande principale.\n";
+printf "5. Vous pouvez afficher votre cle ssh avec ${REVERSE}${GREEN}[c]lessh${NORMAL}${YELLOW}.\n";
+printf "6. Votre dépôt a été initialisé par ${REVERSE}${GREEN}initssh${NORMAL}${YELLOW} puis ${REVERSE}${GREEN}initgit${NORMAL}${YELLOW}.\n";
+printf "7. Initialisez seulement si besoin le dossier emat avec\n";
+printf "   ${REVERSE}${GREEN}initdossieremat${NORMAL}${YELLOW}.${NORMAL}\n";
+'
+
+guidereset='
+printf "\n La commande ${REVERSE}${GREEN}reset${NORMAL} réinitialise votre dépôt local.\n";
 printf " ${RED}Son exécution implique une RAZ des fichiers locaux.${NORMAL}\n";
-printf " Elle s\x27exécute en plusieurs étapes :\n";
-printf " ${REVERSE}1.${NORMAL} Application des paramètres globaux de Git (branche\n";
-printf "    par défaut, nom et e-mail)\n";
-printf " ${REVERSE}2.${NORMAL} Déclaration du git remote où on donne le chemin du\n";
-printf "    dépôt distant\n";
-printf " ${REVERSE}3.${NORMAL} Récupération de toutes les données du serveur distant\n";
-printf " ${REVERSE}4.${NORMAL} Destruction et création de la branche locale\n";'
+printf " Elle s\x27exécute en 2 étapes :\n";
+printf " ${REVERSE}1.${NORMAL} Récupération des données des dépôts\n";
+printf " ${REVERSE}2.${NORMAL} Destruction et création de la branche locale\n";
+'
 
-init='
-clear;
-printf "${RED}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
-printf "Ceci va détruire tout travail non partagé !\n";
-printf "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ${NORMAL}\n";
-read -p "Êtes-vous sûr de ce que vous faites ? (O/N) " -n 1 -r
+reset='
+guidereset
+printf "\n";
+annuler_saisies_precedentes
+read -p "Confirmez vous son exécution ? (O/N) " -n 1 -r
 if [[ $REPLY =~ ^[oOyY]$ ]]
 then
-	printf "\n${GREEN}Paramétrage global de Git${NORMAL}\n";
-	git config --global init.defaultBranch $mainbranch
-	git config --global user.name $name
-	git config --global user.email $email
-	printf "\n${GREEN}Déclaration du remote, le serveur distant${NORMAL}\n";
-	git remote remove serveur;
-	git remote add serveur '$urlserveur' ;
-	printf "\n${GREEN}Récupération des données du serveur distant${NORMAL}\n" ;
-	git checkout $mainbranch;
-	git fetch serveur ;
-	git pull serveur '$mainbranch' ;
-	git branch --set-upstream-to=serveur/'$mainbranch' '$mainbranch';
-	printf "\n${GREEN}Remise à zéro de la branche locale${NORMAL}\n" ;
-	git branch -D local ;
-	git checkout -B local
-fi'
+	resetlocalexec
+fi
+'
 
-mansave='
-clear;
-printf "NAME\n";
-printf " save - création d\x27un commit (snapshot)\n\n";
-printf "DESCRIPTION\n";
-printf " La commande ${YELLOW}${REVERSE}save${NORMAL} a plusieurs rôles :\n";
-printf " ${REVERSE}1.${NORMAL} Indiquer l\x27état du dépôt\n";
-printf " ${REVERSE}2.${NORMAL} Formaliser le message de commit\n";
-printf " ${REVERSE}2.${NORMAL} Créer un commit (snapshot incrémental) des fichiers\n";
-printf "    locaux\n\n";
+resetlocalexec() {
+	printf "\n ${REVERSE}${GREEN}reset 1/2. Récupération des données du dossieremat\n${NORMAL}";
+	printf "${YELLOW}\"No rebase in progress\" n\x27est pas une erreur${NORMAL}\n";
+	git rebase --abort;
+	git checkout $mainbranch;
+	git fetch dossieremat $mainbranch:$mainbranch -fu;
+	git branch --set-upstream-to=dossieremat/$mainbranch $mainbranch;
+	git reset --hard HEAD;
+	git rebase;
+	git pull dossieremat $mainbranch;
+	printf " ${REVERSE}${GREEN}reset 2/2. Remise à zéro de la branche locale${NORMAL}\n";
+	git branch -D local;
+	git checkout -B local;
+	printf " ${REVERSE}${GREEN}reset - Fin d\x27exécution${NORMAL}\n";
+}
+
+resetdossierematexec() {
+	printf "\n ${REVERSE}${GREEN}resetemat 1/1. Récupération des données de la forge\n${NORMAL}";
+	git checkout $mainbranch;
+	git fetch forgeintradef $mainbranch:$mainbranch -fu;
+	git branch --set-upstream-to=forgeintradef/$mainbranch $mainbranch;
+	git reset --hard HEAD;
+	git rebase;
+	git pull forgeintradef $mainbranch;
+	printf " ${REVERSE}${GREEN}resetemat - Fin d\x27exécution${NORMAL}\n";
+}
+
+guidesave='
+printf " La commande ${REVERSE}${GREEN}save${NORMAL} crée un commit (snapshot \n";
+printf " incrémental) des fichiers.\n";
 printf " Elle s\x27exécute en plusieurs étapes :\n";
 printf " ${REVERSE}1.${NORMAL} Prise en compte des modifications des fichiers connus\n";
 printf " ${REVERSE}2.${NORMAL} Affichage du statut du dépôt local\n";
 printf " ${REVERSE}3.${NORMAL} Affichage du formalisme\n";
 printf " ${REVERSE}4.${NORMAL} Stockage du message de commit dans une variable\n";
 printf " ${REVERSE}5.${NORMAL} Création du commit formalisé\n";
-printf " ${REVERSE}5.${NORMAL} Si réussite, incrémentation du compteur de bons\n";
-printf "    réflexes\n"'
+printf " ${REVERSE}6.${NORMAL} Proposition de renommer le commit en boucle\n";
+printf " ${REVERSE}7.${NORMAL} Si réussite, incrémentation du compteur de bons\n";
+printf "    réflexes\n"
+'
 
 save='
-clear;
-git add fichier ;
-git add test.xlsx ;
-git status
-printf "${YELLOW}+-------------------------------------------------------+"
-printf "\n|${GREEN}S\x27il est écrit : ${YELLOW}nothing to commit, working tree clean${GREEN},${YELLOW}|\n";
-printf "|${GREEN}vous n\x27avez rien à sauvegarder, sortez avec CTRL + C ! ${YELLOW}|\n";
-printf "+-------------------------------------------------------+${NORMAL}\n\n\n";
+printf "\n";
+git add .;
+git status;
+printf "${YELLOW}╔═══════════════════════════════════════════════════════╗"
+printf "\n║${YELLOW}S\x27il est écrit : ${NORMAL}nothing to commit, working tree clean${YELLOW},║\n";
+printf "║vous n\x27avez rien à sauvegarder, faites juste \x22${REVERSE}${GREEN}Entrée${NORMAL}${YELLOW}\x22  ║\n";
+printf "╚═══════════════════════════════════════════════════════╝${NORMAL}\n";
 printf " ${YELLOW}Autrement, bon réflexe !${NORMAL}\n\n"
-printf " Votre message de commit est au format (ACTION):Message\n" ;
-printf " Les actions sont${GREEN} AJOUT${NORMAL}, ${GREEN}MAJ${NORMAL} et ${GREEN}SUPPR${NORMAL}.\n\n" ;
-printf " ${RED}${REVERSE}1.${NORMAL}${RED} Soyez EXHAUSTIF, ce seul message donne le suivi !\n";
-#printf " ${RED}${REVERSE}2.${NORMAL}${RED} Ne mettez pas de , de \x27 ou de \x22 !\n";
-printf "\n${NORMAL} Votre message : ("
-read -p "" ;
-git commit -m $name:\($REPLY
+printf " ${REVERSE}1.${NORMAL} Appliquez le format ${REVERSE}${GREEN}ligne, ACTION, description${NORMAL}\n";
+printf "    Les actions sont${GREEN} ADD${NORMAL}, ${GREEN}MAJ${NORMAL} et ${GREEN}SUPPR${NORMAL}.\n";
+printf " ${REVERSE}2.${NORMAL}${RED} PAS DE SAUT DE LIGNE, copiez depuis notepad par ex.${NORMAL}\n";
+printf " ${REVERSE}3.${NORMAL}${RED} Soyez COMPLET, ce seul message donne le suivi !${NORMAL}\n";
+printf "    ${RED}Faites la liste INTEGRALE des lignes modifiées.${NORMAL}\n";
+printf "\n Votre message : ";
+start notepad
+annuler_saisies_precedentes
+read -r
+git commit -m "'$name': $REPLY"
 if [[ $? == 0 ]]
 then
+	rename
 	((compteurbonreflexe++));
-fi'
+fi
+'
 
-manhisto='
-clear;
-printf "NAME\n";
-printf " histo - affichage de l\x27historique\n\n";
-printf "DESCRIPTION\n";
-printf " La commande ${YELLOW}${REVERSE}histo${NORMAL} a pour rôle de construire un arbre\n";
-printf " des commits pour chaque branche connue.\n";
-printf " Si ${RED}serveur/main${NORMAL} et ${GREEN}main${NORMAL} ne sont pas sur la même ligne,\n";
-printf " il y a un conflit à gérer.\n";
-printf " Idem si ${GREEN}main${NORMAL} se trouve au-dessus de ${GREEN}local${NORMAL}.\n"'
+rename() {
+	annuler_saisies_precedentes
+	read -p "Ce message vous convient ? (O/N) " -n 1 -r
+	if [[ $REPLY =~ ^[nN]$ ]]
+	then
+		printf "\n${NORMAL} Votre message : ";
+		annuler_saisies_precedentes
+		read -r
+		git commit --amend -m "$name: $REPLY"
+		rename
+	fi
+}
+
+guidehisto='
+printf "\n La commande ${REVERSE}${GREEN}histo${NORMAL} liste les modifications.\n";
+printf " Possibles cas pouvant créer des conflits :\n";
+printf " ${REVERSE}1.${NORMAL}${REVERSE}${MAGENTA}dossieremat/main${NORMAL} et ${REVERSE}${MAGENTA}main${NORMAL} ne sont pas sur la même ligne\n";
+printf " ${REVERSE}2.${NORMAL}${REVERSE}${MAGENTA}main${NORMAL} se trouve par-dessus ${REVERSE}${MAGENTA}HEAD -> local${NORMAL}.\n";
+'
+
+git config --global alias.histo "log --all --graph --pretty=format:'%C(reverse)%C(magenta)%C(bold)%d%C(reverse)%Creset %C(yellow)%s %C(bold)%C(cyan)(%cr)' --abbrev-commit -12"
+
+resetemat() {
+	printf "\n ${REVERSE}${GREEN}resetemat 1/3. Ouverture de dossieremat${NORMAL}\n";
+	cd $urldossieremat
+	if [[ $? != 0 ]]
+	then
+		printf " ${REVERSE}${RED}resetemat - ERREUR DANS l\x27OUVERTURE DU DOSSIER${NORMAL}\n";
+	else
+		printf " ${REVERSE}${GREEN}resetemat 2/3. Reset des données de dossieremat par${NORMAL}\n";
+		printf "                ${REVERSE}${GREEN}celles de la forge intradef${NORMAL}\n";
+		printf "${YELLOW}Validez un ${NORMAL}continue connecting${YELLOW} avec ${REVERSE}${GREEN}yes${NORMAL}\n";
+		git fetch forgeintradef;
+		git reset --hard forgeintradef/$mainbranch;
+		if [[ $? != 0 ]]
+		then
+			printf " ${REVERSE}${RED}resetemat - Erreur après reset --hard forge${NORMAL}\n";
+		fi
+		printf " ${REVERSE}${GREEN}resetemat 3/3. Déplacement dans le dossier local${NORMAL}\n";
+		cd /
+	fi
+	printf " ${REVERSE}${GREEN}resetemat - Fin d\x27exécution${NORMAL}\n";
+}
 
 histo='
-clear;
-printf "\n${GREEN}Récupération des données du serveur distant${NORMAL}\n" ;
+printf "\n ${REVERSE}${GREEN}histo 1/5. Reset de dossieremat${NORMAL}\n";
+resetemat
+printf "\n ${REVERSE}${GREEN}histo 2/5. Déplacement sur la branche ${REVERSE}${MAGENTA}main${NORMAL}\n";
 git checkout '$mainbranch';
-git fetch serveur;
-git pull serveur '$mainbranch';
+printf "\n ${REVERSE}${GREEN}histo 3/5. Récupération des données du dossieremat${NORMAL}\n";
+git fetch dossieremat;
+git pull dossieremat '$mainbranch';
+printf "\n ${REVERSE}${GREEN}histo 4/5. Retour sur la branche ${REVERSE}${MAGENTA}local${NORMAL}\n";
 git checkout local;
-printf "\n${GREEN}Arbre des commits de toutes les branches connues : ${NORMAL}\n" ;
-git log --all --decorate --oneline --graph'
+guidehisto
+printf "\n ${REVERSE}${GREEN}histo 5/5. Arbre des 12 dernières modifications : ${NORMAL}\n";
+git histo
+printf " ${REVERSE}${GREEN}histo - Fin d\x27exécution${NORMAL}\n";
+'
 
-manpartage='
-clear;
-printf "NAME\n";
-printf " partage - partage des données locales sauvegardées\n\n";
-printf "DESCRIPTION\n";
-printf " Cette commande partage toutes les données sauvegardées.\n";
-printf " Elle réclame 8 commandes git successives d\x27où sa verbosité."'
+guidepartage='
+printf "\n La commande ${REVERSE}${GREEN}partage${NORMAL} envoie toutes les données\n";
+printf " sauvegardées en local dans le dossieremat.\n\n";
+printf " ${RED}${REVERSE}1. ${NORMAL}${RED}Vous devez avoir tout sauvegardé.${NORMAL}\n";
+printf " ${RED}${REVERSE}2. ${NORMAL}${RED}Cette commande peut entraîner des conflits.${NORMAL}\n\n"
+'
 
-partage='git checkout '$mainbranch' && git fetch serveur && git pull serveur '$mainbranch' && git checkout local && git rebase '$mainbranch' && git checkout '$mainbranch' && git merge local && git push serveur '$mainbranch' && git checkout local'
-
-manreset='
-clear;
-printf "NAME\n";
-printf " reset - suppression de toutes les données locales\n\n";
-printf "DESCRIPTION\n";
-printf " Cette commande supprime toutes les données non partagées\n";
-printf " Elle est utile pour régler rapidement un conflit à la\n";
-printf " main à base de copier/coller.\n"
-printf " ${RED}Son exécution implique une RAZ des fichiers locaux.${NORMAL}\n"'
-
-reset='
-clear;
-printf "${RED}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n";
-printf "Ceci va détruire tout travail non partagé !\n";
-printf "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ${NORMAL}\n";
-read -p "Êtes-vous sûr de ce que vous faites ? (O/N) " -n 1 -r
+partage='
+guidepartage
+printf "\n";
+annuler_saisies_precedentes
+read -p "Confirmez vous son exécution ? (O/N) " -n 1 -r
 if [[ $REPLY =~ ^[oOyY]$ ]]
 then
-	printf "\n${GREEN}Récupération des données du serveur distant${NORMAL}\n" ;
-	git checkout $mainbranch ;
-	git fetch serveur ;
-	git pull serveur $mainbranch ;
-	printf "\n${GREEN}Remise à zéro de la branche locale${NORMAL}\n" ;
-	git branch -D local ;
-	git checkout -B local
-fi'
+	partageexec
+fi
+'
 
-modif='
-cp ./fichier ./fichierOLD;
-cp c/Users/windows10/Desktop/serveur/fichier ./'
+partageexec='
+printf "\n ${REVERSE}${GREEN}partage 1/12. Arrêt d\x27Excel${NORMAL}\n";
+printf "${RED} N\x27ouvrez plus Excel avant la fin de cette procédure !${NORMAL}\n"
+taskkill -im excel.exe -f
+printf "\n ${REVERSE}${GREEN}partage 2/12. Récupération des données du dossieremat${NORMAL}\n";
+git checkout '$mainbranch';
+git fetch dossieremat;
+git pull dossieremat '$mainbranch';
+if [[ $? != 0 ]]
+then
+	conflitlocalmessageexec
+	printf "\n Notez toutes ces étapes. ${REVERSE}${GREEN}Entrée${NORMAL} pour réparer le dépôt.\n";
+	annuler_saisies_precedentes
+	read;
+	conflitlocalexec
+	conflitlocalmessageexec
+else
+	printf "\n ${REVERSE}${GREEN}partage 3/12. Enregistrement de toutes données locales${NORMAL}\n";
+	save
+	printf "\n ${REVERSE}${GREEN}partage 4/12. Rebase sur la branche locale${NORMAL}\n";
+	git checkout local;
+	git rebase '$mainbranch';
+	if [[ $? != 0 ]]
+	then
+		conflitlocalmessageexec
+		printf "\n Notez toutes ces étapes. ${REVERSE}${GREEN}Entrée${NORMAL} pour réparer le dépôt.\n";
+		annuler_saisies_precedentes
+		read;
+		conflitlocalexec
+		conflitlocalmessageexec
+	else
+		printf " ${REVERSE}${GREEN}partage 5/12. Merge sur la branche principale${NORMAL}\n";
+		git checkout '$mainbranch';
+		git merge local;
+		printf " ${REVERSE}${GREEN}partage 6/12. Envoi sur le dossieremat${NORMAL}\n";
+		git push dossieremat '$mainbranch';
+		printf "\n ${REVERSE}${GREEN}partage 7/12. Ouverture de dossieremat${NORMAL}\n";
+		cd '$urldossieremat'
+		if [[ $? != 0 ]]
+		then
+			printf "\n ${REVERSE}${RED}partage - ERREUR DANS l\x27OUVERTURE DU DOSSIER${NORMAL}\n";
+		else
+			printf " ${REVERSE}${GREEN}partage 8/12. Modif. fichier Excel de dossieremat${NORMAL}\n";
+			printf "${YELLOW}    En cas de ${NORMAL}Unlink of file \x27"'$nomfichier'"\x27 failed${YELLOW} :\n";
+			printf "      1. Ne fermez pas cette fenêtre.\n";
+			printf "      2. Trouvez qui a ouvert le fichier.\n"; 
+			printf "      3. Tentez en boucle de livrer s\x27il le faut.${NORMAL}\n";
+			git reset --hard HEAD;
+			printf "\n ${REVERSE}${GREEN}partage 9/12. Récupération des données de forgeintradef depuis dossieremat${NORMAL}\n";
+			git fetch forgeintradef;
+			if [[ $? != 0 ]]
+			then
+				printf " ${REVERSE}${RED}partage - ERREUR APRES GIT FETCH FORGE${NORMAL}\n";
+			else
+				printf "\n ${REVERSE}${GREEN}partage 10/12. Push sur la forge depuis dossieremat${NORMAL}\n";
+				git push forgeintradef $mainbranch;
+				if [[ $? != 0 ]]
+				then
+					printf " ${REVERSE}${RED}partage - ERREUR APRES GIT PUSH FORGE${NORMAL}\n";
+					conflitdossierematexec
+					conflitdossierematmessageexec
+				fi
+			fi
+		fi
+		printf "\n ${REVERSE}${GREEN}partage 11/12. Déplacement dans le dossier local${NORMAL}\n";
+		cd /
+		git checkout '$mainbranch';
+		printf " ${REVERSE}${GREEN}partage 12/12. Remise à zéro de la branche locale${NORMAL}\n";
+		git branch -D local;
+		git checkout -B local;
+		rm -f Ma_Version_'$nomfichier';
+		printf "${GREEN} Vous pouvez ouvrir Excel${NORMAL}\n"
+		ouvrirexcel
+	fi
+fi
+printf " ${REVERSE}${GREEN}partage - Fin d\x27exécution${NORMAL}\n";
+'
 
-modif2='cp ./fichierOLD ./fichier'
+conflitlocalmessageexec() {
+	printf "\n${YELLOW}╔═══════════════════════════════════════════════╗";
+	printf "\n║ Il y a un conflit, quelqu\x27un a livré avant !  ║";
+	printf "\n║ ${REVERSE}1.${NORMAL}${YELLOW} Lancez ${REVERSE}${GREEN}histo${NORMAL}${YELLOW} pour identifier les personnes ║";
+	printf "\n║    qui ont fait des modifications avant vous. ║";
+	printf "\n║ ${REVERSE}2.${NORMAL}${YELLOW} Votre fichier local a changé de nom.       ║";
+	printf "\n║    Il est devenu \x22Votre_Version_"$nomfichier"\x22.";
+	printf "\n║    ${GREEN}Modifiez le fichier${YELLOW} \x22${GREEN}"$nomfichier$"${YELLOW}\x22";
+	printf "\n║ ${REVERSE}3.${NORMAL}${YELLOW} Recommencez, donc ${REVERSE}${GREEN}save${NORMAL}${YELLOW} puis ${REVERSE}${GREEN}partage${NORMAL}${YELLOW}        ║";
+	printf "\n╚═══════════════════════════════════════════════╝${NORMAL}\n";
+}
 
-alias maninit=$maninit
-alias init=$init
-alias mansave=$mansave
-alias save=$save
-alias manhisto=$manhisto
-alias histo=$histo
-alias manpartage=$manpartage
-alias partage=$partage
-alias manreset=$manreset
+conflitdossierematmessageexec() {
+	printf "\n${YELLOW}╔═══════════════════════════════════════════════╗";
+	printf "\n║ Il y a un conflit, quelqu\x27un a livré avant !  ║";
+	printf "\n║ ${REVERSE}1.${NORMAL}${YELLOW} Lancez ${REVERSE}${GREEN}histo${NORMAL}${YELLOW} pour identifier les personnes ║";
+	printf "\n║    qui ont fait des modifications avant vous. ║";
+	printf "\n║ ${REVERSE}2.${NORMAL}${YELLOW} Ouvrez le dossier emat avec cd d: puis    ║";
+	printf "\n║   ${YELLOW} cd "$urldossieremat;
+	printf "\n║ ${REVERSE}2.${NORMAL}${YELLOW} Le fichier dans dossieremat a changé.      ║";
+	printf "\n║    Il est devenu \x22Version_Dossier_EMAT_"$nomfichier"\x22.";
+	printf "\n║    ${GREEN}Modifiez le fichier${YELLOW} \x22${GREEN}"$nomfichier$"${YELLOW}\x22";
+	printf "\n║ ${REVERSE}3.${NORMAL}${YELLOW} Recommencez, donc ${REVERSE}${GREEN}save${NORMAL}${YELLOW} puis ${REVERSE}${GREEN}partage${NORMAL}${YELLOW}        ║";
+	printf "\n╚═══════════════════════════════════════════════╝${NORMAL}\n";
+}
+
+conflitlocalexec() {
+	printf "\n ${REVERSE}${GREEN}conflit 1/3. Création d\x27une version locale du xlsx${NORMAL}\n";
+	printf "${YELLOW}\"No rebase in progress\" n\x27est pas une erreur${NORMAL}\n";
+	git rebase --abort;
+	mv $nomfichier Ma_Version_$nomfichier;
+	git add -f Ma_Version_$nomfichier;
+	git stash push Ma_Version_$nomfichier;
+	printf " ${REVERSE}${GREEN}conflit 2/3. Reinitialisation du dossier${NORMAL}\n";
+	resetlocalexec
+	printf " ${REVERSE}${GREEN}conflit 3/3. Rapatriement de la version locale du xlsx${NORMAL}\n";
+	git stash pop 0;
+	git rm --cached Ma_Version_$nomfichier;
+	printf " ${REVERSE}${GREEN}conflit - Fin d\x27exécution${NORMAL}\n";
+}
+
+conflitdossierematexec() {
+	printf "\n ${REVERSE}${GREEN}conflit 1/3. Création d\x27une version précédente du xlsx${NORMAL}\n";
+	mv $nomfichier Version_Dossier_EMAT_$nomfichier;
+	git add -f Version_Dossier_EMAT_$nomfichier;
+	git stash push Version_Dossier_EMAT_$nomfichier;
+	printf " ${REVERSE}${GREEN}conflit 2/3. Reinitialisation du dossier emat${NORMAL}\n";
+	resetdossierematexec
+	printf " ${REVERSE}${GREEN}conflit 3/3. Rapatriement de la version précédente du xlsx${NORMAL}\n";
+	git stash pop 0;
+	git rm --cached Version_Dossier_EMAT_$nomfichier;
+	printf " ${REVERSE}${GREEN}conflit - Fin d\x27exécution${NORMAL}\n";
+}
+
+guideinitgit='
+printf "\n La commande ${REVERSE}${GREEN}initgit${NORMAL} réinitialise votre dépôt local.\n";
+printf " ${RED}Son exécution implique une RAZ des fichiers locaux.${NORMAL}\n";
+printf " Elle s\x27exécute en 3 étapes :\n";
+printf " ${REVERSE}1.${NORMAL} Application des paramètres globaux de Git (branche\n";
+printf "    par défaut, nom, e-mail et stratégie de pull)\n";
+printf " ${REVERSE}2.${NORMAL} Déclaration des 2 git remote où on donne le chemin\n";
+printf "    du dépôt distant et de la forge intradef\n";
+printf " ${REVERSE}3.${NORMAL} Création et configuration de la clé SSH\n";
+'
+
+initgit='
+guideinitgit
+printf " Ceci lance toute la configuration initiale.\n;"
+printf "  ${YELLOW}Il faut avoir exécuté ${REVERSE}${GREEN}initssh${NORMAL}\n";
+printf "  ${YELLOW}Verifiez ça avec ${REVERSE}${GREEN}clessh${NORMAL}\n";
+annuler_saisies_precedentes
+read -p "Vous validez ? (O/N) " -n 1 -r
+
+if [[ $REPLY =~ ^[oOyY]$ ]]
+then
+	initgitexec
+fi
+'
+
+parametresglobauxgit() {
+	git config --global core.autocrlf true
+	git config --global init.defaultBranch $mainbranch
+	git config --global user.name $name
+	git config --global user.email $email
+	git config --global pull.ff only
+	git config --global advice.diverging false
+	git config --global advice.skippedCherryPicks false
+	git config --global advice.addIgnoredFile false
+	git config --global advice.statusHints false
+}
+
+initgitexec='
+	printf "\n ${REVERSE}${GREEN}initgit 1/3. Paramétrage global de Git${NORMAL}\n";
+	git init
+	parametresglobauxgit
+	printf " ${REVERSE}${GREEN}initgit 2/3. Déclaration du remote 1, le dossieremat${NORMAL}\n";
+	printf "${YELLOW}\"No such remote\" n\x27est pas une erreur${NORMAL}\n";
+	git remote remove dossieremat;
+	git remote add dossieremat $urldossieremat;
+	printf " ${REVERSE}${GREEN}initgit 3/3. Reset du dossier local${NORMAL}\n";
+	resetlocalexec
+	printf " ${REVERSE}${GREEN}initgit - Fin d\x27exécution${NORMAL}\n";
+'
+
+initssh='
+	printf " ${REVERSE}${GREEN}initssh 1/3. Création de la clé ssh ${NORMAL}\n";
+	rm -f ~/.ssh/clepourgitforge
+	rm -f ~/.ssh/clepourgitforge.pub
+	annuler_saisies_precedentes
+	ssh-keygen -t ed25519 -C "Tdb-CEMAT-git@'$name'" -f ~/.ssh/clepourgitforgetemp -N motdepassedelaclessh
+	ssh-keygen -p -P motdepassedelaclessh -N "" -f ~/.ssh/clepourgitforgetemp
+	mv ~/.ssh/clepourgitforgetemp ~/.ssh/clepourgitforge
+	mv ~/.ssh/clepourgitforgetemp.pub ~/.ssh/clepourgitforge.pub
+	printf "\n ${REVERSE}${GREEN}initssh 2/3. Prise en compte de votre clé privée SSH${NORMAL}\n";
+	eval $(ssh-agent)
+	ssh-add -D
+	ssh-add ~/.ssh/clepourgitforge
+	printf "\n         ${YELLOW}Ignorez tout ce qui se passe au-dessus.${NORMAL}\n";
+	printf "\n ${REVERSE}${GREEN}initssh 3/3. Ajout de votre clé publique SSH à votre${NORMAL}\n";
+	clessh
+	printf "\n ${REVERSE}${GREEN}AVANT TOUTE AUTRE ACTION : (très important)${NORMAL}\n";
+	printf " ${REVERSE}1. ${GREEN}ENREGISTREZ VOTRE CLE SSH SUR VOTRE PROFIL FORGE${NORMAL}\n";
+	printf " ${REVERSE}2. ${GREEN}ATTENDEZ 2 MINUTES ENTIERES MONTRE EN MAIN${NORMAL}\n";
+	printf "${YELLOW}Appuyez sur ${REVERSE}${GREEN}Entrée${NORMAL}${YELLOW} une fois le temps BIEN écoulé.${NORMAL}\n";
+	annuler_saisies_precedentes
+	read
+	printf " ${REVERSE}${GREEN}initssh - Fin d\x27exécution${NORMAL}\n";
+'
+
+clessh='
+	printf "\n ${YELLOW}1. Si votre navigateur ne s\x27ouvre pas, voici les liens : ${NORMAL}\n"
+	start //max firefox https:////forge.intradef.gouv.fr/account/keys-tokens
+	start //max firefox https:////forge.intradef.gouv.fr
+	printf " ${CYAN}https://forge.intradef.gouv.fr/${NORMAL}\n"
+	printf " ${YELLOW}puis${NORMAL}\n"
+	printf " ${CYAN}https://forge.intradef.gouv.fr/account/keys-tokens${NORMAL}\n\n"
+	printf " ${YELLOW}2. ${REVERSE}${GREEN}+ Ajouter une clef SSH${NORMAL}${YELLOW} et collez tout ce qui suit :${NORMAL}\n"
+	printf "${YELLOW}En cas de \x22${NORMAL}No such file or directory${YELLOW}\x22, lancez ${REVERSE}${GREEN}initssh${NORMAL} ${YELLOW}!${NORMAL}\n";
+	cat ~/.ssh/clepourgitforge.pub
+	printf "    ${REVERSE}${GREEN}(clic droit "copier", surtout pas CTRL+C)${NORMAL}\n"
+	printf "\n${YELLOW}Vous avez accès à cette doc à tout moment avec ${REVERSE}${GREEN}[c]lessh${NORMAL}\n";
+'
+
+initdossieremat='
+printf "\n ${REVERSE}${GREEN}initdossieremat - Validation${NORMAL}\n";
+printf " ${REVERSE}1.${NORMAL}${YELLOW} Il faut avoir mis '$nomfichier' dans le dossier local${NORMAL}\n";
+printf " ${REVERSE}2.${NORMAL}${YELLOW} Il faut avoir exécuté ${REVERSE}${GREEN}initssh${NORMAL}\n";
+printf "    ${YELLOW}Verifiez ça avec ${REVERSE}${GREEN}clessh${NORMAL}\n";
+annuler_saisies_precedentes
+read -p " Vous validez ? (O/N) " -n 1 -r
+if [[ $REPLY =~ ^[oOyY]$ ]]
+then
+	printf "\n ${REVERSE}${GREEN}initdossieremat 1/8. Ouverture de dossieremat${NORMAL}\n";
+	cd '$urldossieremat'
+	if [[ $? != 0 ]]
+	then
+		printf "\n ${REVERSE}${RED}initdossieremat - ERREUR DANS l\x27OUVERTURE DU DOSSIER${NORMAL}\n";
+	else
+		printf "\n ${REVERSE}${GREEN}initdossieremat 2/8. Paramétrage global de Git${NORMAL}\n";
+		parametresglobauxgit
+		printf "\n ${REVERSE}${GREEN}initdossieremat 3/8. Paramétrage git de dossieremat${NORMAL}\n";
+		cp /.gitignore ./
+		rm -rf ./.git
+		git init;
+		git config core.autocrlf true;
+		git config init.defaultBranch $mainbranch;
+		git config receive.denyCurrentBranch ignore;
+		git checkout -B $mainbranch;
+		printf " ${REVERSE}${GREEN}initdossieremat 4/8. Déclaration du remote forgeintradef${NORMAL}\n";
+		printf "${YELLOW}\"No such remote\" n\x27est pas une erreur${NORMAL}\n";
+		git remote remove forgeintradef;
+		git remote add forgeintradef '$urlforgeintradef'
+		printf "\n ${REVERSE}${GREEN}initdossieremat 5/8. Récupération des données de forgeintradef depuis dossieremat${NORMAL}\n";
+		git fetch forgeintradef $mainbranch:$mainbranch -fu;
+		git branch --set-upstream-to=dossieremat/$mainbranch $mainbranch;
+		git reset --hard forgeintradef/$mainbranch;
+		if [[ $? != 0 ]]
+		then
+			printf " ${REVERSE}${RED}initdossieremat - Erreur après reset --hard forge${NORMAL}\n";
+		else
+			printf "\n ${REVERSE}${GREEN}initdossieremat 6/8. Prise en compte du fichier par le git de dossieremat${NORMAL}\n";
+			cp /'$nomfichier' ./
+			git add .;
+			git status;
+			git commit -m "'$name' (script) : initdossieremat - Mise à jour de la forge avec le dernier fichier en date";
+			git add -f $nomfichier;
+			git push forgeintradef $mainbranch;
+			if [[ $? != 0 ]]
+			then
+				printf " ${REVERSE}${RED}initdossieremat - Erreur après push forge${NORMAL}\n";
+			fi
+		fi
+		printf "\n ${REVERSE}${GREEN}initdossieremat 7/8. Déplacement dans le dossier local${NORMAL}\n";
+		cd /
+		printf "\n ${REVERSE}${GREEN}initdossieremat 8/8. Configuration Git du dossier local${NORMAL}\n";
+		initgitexec
+		printf " ${REVERSE}${GREEN}initdossieremat - Fin d\x27exécution${NORMAL}\n";
+	fi
+fi
+'
+
+alias guide=$guide
+alias g=$guide
+
+alias guidereset=$guidereset
+alias gr=$guidereset
+
 alias reset=$reset
-alias modif=$modif
-alias modif2=$modif2
+alias r=$reset
+
+alias guidesave=$guidesave
+alias gs=$guidesave
+
+alias save=$save
+alias s=$save
+
+alias guidehisto=$guidehisto
+alias gh=$guidehisto
+
+alias histo=$histo
+alias h=$histo
+
+alias guidepartage=$guidepartage
+alias gp=$guidepartage
+
+alias partage=$partage
+alias p=$partage
+
+alias partageexec=$partageexec
+
+alias guideinitgit=$guideinitgit
+
+alias initgit=$initgit
+
+alias initgitexec=$initgitexec
+
+alias initssh=$initssh
+
+alias clessh=$clessh
+alias c=$clessh
+
+alias initdossieremat=$initdossieremat
+alias i=$initdossieremat
+
+##############################
+#TACHES LANCEES AU DEMARRAGE #
+##############################
+printf " ${REVERSE}${GREEN}ssh 1/1. Lancement et paramétrage du client ssh${NORMAL}\n"
+eval $(ssh-agent)
+ssh-add ~/.ssh/clepourgitforge
+if [[ $? != 0 ]]
+then
+	initssh
+	initgitexec
+fi
+resetemat
+resetlocalexec
+printf " ${REVERSE}${GREEN}Ouverture du fichier excel${NORMAL}\n";
+ouvrirexcel
+
+compteurbonreflexe=0
+###############################
+###############################
+###############################
