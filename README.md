@@ -1,6 +1,6 @@
-####################################
-N'OUVREZ QUE git-bash.exe !!!!!!!!!!
-####################################
+Ce script est à placer dans la configuration d'une console.
+Dans le cas de son utilisation concrète, il a été mis en place dans le MinGW d'un GitPortable, il fallait donc exécuter git-bash.exe pour accéder aux commandes.
+Si vous placez ce script dans votre .bashrc personnel, c'est toutes vos consoles qui seront concernées.
 
 ______________________________________________________________________
 Toute la conf et le code se trouvent dans le fichier ./etc/bash.bashrc
