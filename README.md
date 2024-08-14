@@ -8,7 +8,7 @@ Toute la conf et le code se trouvent dans le fichier ./etc/bash.bashrc
 
 Dans le cas d'une installation de zéro, si vous en avez le rôle :
 1. Faire une copie du fichier des expressions en le renommant, même à la racine ou dans un sous-répertoire : le .gitignore ne le prendra pas en charge.
-2. Récupérer la dernière version du fichier des expressions et la mettre à la racine du dossier principal (\\pprod-pfm-qlik-file\EMAT-BGPS_TdB-CEMAT\1_DASHBOARD\00_DASHBOARD_INCLUDE par défaut)
+2. Récupérer la dernière version du fichier des expressions et la mettre à la racine du dossier principal (\\1_DASHBOARD\00_DASHBOARD_INCLUDE par défaut)
 3. Modifiez la configuration du script
 4. Lancez git-bash.exe, il risque d'y avoir des erreurs. Si toutes celles concernant la conf sont corrigées, il restera l'initialisation de la forge et du dossier
 5. Lancez clessh pour avoir votre clessh
